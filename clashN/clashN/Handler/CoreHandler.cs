@@ -200,21 +200,27 @@ namespace ClashN.Handler
                     arguments += $" -d \"{data}\"";
                 }
 
-                Process p = new Process
+                var startInfo = new ProcessStartInfo
                 {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = fileName,
-                        Arguments = arguments,
-                        WorkingDirectory = Utils.GetConfigPath(),
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        CreateNoWindow = true,
-                        StandardOutputEncoding = Encoding.UTF8,
-                        StandardErrorEncoding = Encoding.UTF8
-                    }
+                    FileName = fileName,
+                    Arguments = arguments,
+                    WorkingDirectory = Utils.GetConfigPath(),
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                    StandardOutputEncoding = Encoding.UTF8,
+                    StandardErrorEncoding = Encoding.UTF8
                 };
+
+                // set env "SAFE_PATHS"
+                if (coreInfo.safePaths != null && coreInfo.safePaths.Count > 0)
+                {
+                    string safePathsValue = string.Join(";", coreInfo.safePaths.Select(item=> Utils.GetPath(item))); // 用分号拼接路径
+                    startInfo.EnvironmentVariables["SAFE_PATHS"] = safePathsValue;
+                }
+
+                Process p = new Process() { StartInfo = startInfo };
                 //if (config.enableTun)
                 //{
                 //    p.StartInfo.Verb = "runas";
